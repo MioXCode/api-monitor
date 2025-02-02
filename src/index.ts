@@ -7,7 +7,7 @@ import { errorHandler } from "./middleware/errorHandler";
 import { schedule } from "node-cron";
 import { prisma } from "./config/database";
 import { MonitorService } from "./services/monitor_service";
-import { errorResponse, successResponse } from "./utils/response";
+import { successResponse } from "./utils/response";
 
 const app = new Hono();
 
@@ -15,8 +15,8 @@ const middlewares = [
   logger(),
   prettyJSON(),
   cors({
-    origin: ["http://localhost:3000"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    origin: ["http://localhost:3001"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   }),

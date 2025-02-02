@@ -11,38 +11,43 @@ export class MonitorService {
   }
 
   async checkEndpoint(endpoint: Endpoint) {
-    const startTime = Date.now();
-    const monitorResult = await this.performHealthCheck(endpoint);
-    const responseTime = Date.now() - startTime;
+    try {
+      const startTime = Date.now();
+      const monitorResult = await this.performHealthCheck(endpoint);
+      const responseTime = Date.now() - startTime;
 
-    const log = await this.createMonitorLog(endpoint.id, {
-      success: monitorResult.success,
-      statusCode: monitorResult.statusCode,
-      responseTime,
-      errorMessage: monitorResult.errorMessage,
-      errorType: monitorResult.errorType ?? null,
-    });
+      const log = await this.createMonitorLog(endpoint.id, {
+        success: monitorResult.success,
+        statusCode: monitorResult.statusCode,
+        responseTime,
+        errorMessage: monitorResult.errorMessage,
+        errorType: monitorResult.errorType ?? null,
+      });
 
-    const newStatus = this.determineEndpointStatus(
-      monitorResult.success,
-      responseTime,
-      endpoint.timeout
-    );
-    const updatedEndpoint = await this.updateEndpointStatus(
-      endpoint,
-      newStatus,
-      responseTime
-    );
+      const newStatus = this.determineEndpointStatus(
+        monitorResult.success,
+        responseTime,
+        endpoint.timeout
+      );
+      
+      const updatedEndpoint = await this.updateEndpointStatus(
+        endpoint,
+        newStatus,
+        responseTime
+      );
 
-    if (newStatus !== endpoint.status) {
-      await this.notifyStatusChange(endpoint, newStatus);
+      if (newStatus !== endpoint.status) {
+        await this.notifyStatusChange(endpoint, newStatus);
+      }
+
+      return {
+        log,
+        status: newStatus,
+        endpoint: updatedEndpoint,
+      };
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to check endpoint");
     }
-
-    return {
-      log,
-      status: newStatus,
-      endpoint: updatedEndpoint,
-    };
   }
 
   private async performHealthCheck(endpoint: Endpoint) {

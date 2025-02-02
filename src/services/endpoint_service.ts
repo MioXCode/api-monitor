@@ -6,21 +6,20 @@ export class EndpointService {
   async create(userId: string, data: EndpointRequest): Promise<Endpoint> {
     try {
       await this.validateUniqueEndpoint(userId, data.url);
-
       return await prisma.endpoint.create({
         data: {
           ...data,
           userId,
         },
       });
-    } catch (error: any) {
-      throw new Error(`Failed to create endpoint: ${error.message}`);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to create endpoint");
     }
   }
 
   async findAll(userId: string): Promise<Endpoint[]> {
     try {
-      const endpoints = await prisma.endpoint.findMany({
+      return await prisma.endpoint.findMany({
         where: { userId },
         include: {
           monitorLogs: {
@@ -32,10 +31,8 @@ export class EndpointService {
           createdAt: "desc",
         },
       });
-
-      return endpoints;
-    } catch (error: any) {
-      throw new Error(`Failed to fetch endpoints: ${error.message}`);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to fetch endpoints");
     }
   }
 

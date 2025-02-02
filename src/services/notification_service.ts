@@ -14,8 +14,10 @@ export class NotificationService {
       return await prisma.notification.create({
         data,
       });
-    } catch (error: any) {
-      throw new Error(`Failed to create notification: ${error.message}`);
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to create notification"
+      );
     }
   }
 
@@ -35,13 +37,11 @@ export class NotificationService {
         },
       });
 
-      if (!notifications.length) {
-        return [];
-      }
-
       return notifications;
-    } catch (error: any) {
-      throw new Error(`Failed to fetch notifications: ${error.message}`);
+    } catch (error) {
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to fetch notifications"
+      );
     }
   }
 
@@ -59,8 +59,12 @@ export class NotificationService {
         where: { id, userId },
         data: { read: true },
       });
-    } catch (error: any) {
-      throw new Error(`Failed to mark notification as read: ${error.message}`);
+    } catch (error) {
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to mark notification as read"
+      );
     }
   }
 }

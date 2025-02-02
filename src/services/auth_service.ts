@@ -44,18 +44,12 @@ export class AuthService {
         );
       } catch (emailError) {
         await prisma.user.delete({ where: { id: user.id } });
-        console.error("Email sending error:", emailError);
-        throw new Error(
-          "Failed to send verification email. Please try again later."
-        );
+        throw new Error("Failed to send verification email. Please try again later.");
       }
 
       return this.excludePassword(user);
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Registration failed: ${error.message}`);
-      }
-      throw new Error("Registration failed: An unexpected error occurred");
+      throw new Error(error instanceof Error ? error.message : "Registration failed");
     }
   }
 
@@ -73,8 +67,8 @@ export class AuthService {
         user: this.excludePassword(user),
         token,
       };
-    } catch (error: any) {
-      throw new Error(`Login failed: ${error.message}`);
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Login failed");
     }
   }
 
